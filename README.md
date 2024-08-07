@@ -1,7 +1,7 @@
 # my-react
 从0实现react18
 ## commit规范
-feat： 新增 feature 壮举：新增功能
+feat： 新增 feature
 fix: 修复 bug
 docs: 仅仅修改了文档，比如 README, CHANGELOG, CONTRIBUTE等等
 style: 仅仅修改了空格、格式缩进、逗号等等，不改变代码逻辑
