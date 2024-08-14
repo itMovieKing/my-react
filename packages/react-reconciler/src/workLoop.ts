@@ -31,7 +31,7 @@ function workLoop(root: FiberNode) {
 
 // 最小工作单元
 function performUnitOfWork(fiber: FiberNode) {
-	// 比较并返回返回子fibdernode
+	// 比较并返回子fibdernode
 	const next = beginWork(fiber);
 	fiber.memoizedProps = fiber.pendingProps; // 更新完成之后，更新当前属性
 
