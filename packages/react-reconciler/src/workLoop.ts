@@ -1,15 +1,35 @@
-import { FiberNode } from './fiber';
+import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
+import { HostRoot } from './workTags';
 
 // 正在更新的fiber
 let workInProgress: FiberNode | null = null;
 
+// 调度功能的雏形，当前只是为了串联更新机制和renderRoot
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	const root = markUpdateFormFiberToRoot(fiber);
+	renderRoot(root);
+}
+
+function markUpdateFormFiberToRoot(fiber: FiberNode) {
+	let node = fiber;
+	// 循环向上找父节点
+	while (node.return !== null) {
+		node = node.return;
+	}
+	// 如果是hostRootFiber，返回stateNode
+	if ((node.tag = HostRoot)) {
+		return node.stateNode;
+	}
+	return null;
+}
+
 // 深度遍历dom树
-function renderRoot(root: FiberNode) {
+function renderRoot(root: FiberRootNode) {
 	// 初始化
 	prepareFreshStack(root);
 	do {
 		try {
-			workLoop(root);
+			workLoop();
 			break;
 		} catch (e) {
 			console.warn('workLoop发生错误', e);
@@ -17,13 +37,13 @@ function renderRoot(root: FiberNode) {
 	} while (true);
 }
 
-// 初始化 变量
-function prepareFreshStack(root: FiberNode) {
-	workInProgress = root;
+// 初始化 workInProgress
+function prepareFreshStack(root: FiberRootNode) {
+	workInProgress = createWorkInProgress(root.current, {});
 }
 
 // 深度优先遍历，向下递归子节点，当前更新的fiber不为空就一直执行
-function workLoop(root: FiberNode) {
+function workLoop() {
 	while (workInProgress !== null) {
 		performUnitOfWork(workInProgress);
 	}
