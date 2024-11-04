@@ -2,6 +2,7 @@
 import { Key, Props, Ref } from 'shared/ReactTypes';
 import { WorkTag } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
+import { Container } from 'hostConfig';
 
 export class FiberNode {
 	tag: WorkTag; // dom类型
@@ -46,3 +47,44 @@ export class FiberNode {
 		this.updateQueue = null;
 	}
 }
+
+export class FiberRootNode {
+	container: Container;
+	current: FiberNode;
+	finishedWork: FiberNode | null;
+	constructor(container: Container, hostRootFiber: FiberNode) {
+		this.container = container;
+		this.current = hostRootFiber;
+		hostRootFiber.stateNode = this;
+		this.finishedWork = null;
+	}
+}
+
+export const createWorkInProgress = (
+	current: FiberNode,
+	pendingProps: Props
+) => {
+	let wip = current.alternate;
+	if (wip === null) {
+		// 首屏mounted的时候
+		wip = new FiberNode(current.tag, pendingProps, current.key);
+		wip.stateNode = current.stateNode;
+
+		// 双缓存机制
+		wip.alternate = current;
+		current.alternate = wip;
+	} else {
+		// update
+		wip.pendingProps = pendingProps;
+		// 将effct链表重置为空，以便在更新过程中记录新的副作用
+		wip.flags = NoFlags;
+		wip.subtreeFlags = NoFlags;
+	}
+	// 复制当前节点的大部分属性
+	wip.type = current.type;
+	wip.updateQueue = current.updateQueue;
+	wip.child = current.child;
+	wip.memoizedProps = current.memoizedProps;
+	wip.memoizedState = current.memoizedState;
+	return wip;
+};
