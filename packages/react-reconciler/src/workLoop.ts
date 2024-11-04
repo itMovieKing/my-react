@@ -4,20 +4,26 @@ import { HostRoot } from './workTags';
 // 正在更新的fiber
 let workInProgress: FiberNode | null = null;
 
-// 调度功能的雏形，当前只是为了串联更新机制和renderRoot
+// 初始化 变量
+function prepareFreshStack(root: FiberRootNode) {
+	workInProgress = createWorkInProgress(root.current, {});
+}
+
+// TODO: 调度功能
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
-	const root = markUpdateFormFiberToRoot(fiber);
+	// 更新是从根节点开始的
+	const root = markUpdateFromFiberToRoot(fiber);
 	renderRoot(root);
 }
 
-function markUpdateFormFiberToRoot(fiber: FiberNode) {
+// 从当前节点查找到根节点
+function markUpdateFromFiberToRoot(fiber: FiberNode) {
 	let node = fiber;
-	// 循环向上找父节点
 	while (node.return !== null) {
 		node = node.return;
 	}
-	// 如果是hostRootFiber，返回stateNode
-	if ((node.tag = HostRoot)) {
+
+	if (node.tag === HostRoot) {
 		return node.stateNode;
 	}
 	return null;
@@ -40,11 +46,6 @@ function renderRoot(root: FiberRootNode) {
 	} while (true);
 }
 
-// 初始化 workInProgress
-function prepareFreshStack(root: FiberRootNode) {
-	workInProgress = createWorkInProgress(root.current, {});
-}
-
 // 深度优先遍历，向下递归子节点，当前更新的fiber不为空就一直执行
 function workLoop() {
 	while (workInProgress !== null) {
@@ -58,7 +59,7 @@ function performUnitOfWork(fiber: FiberNode) {
 	const next = beginWork(fiber);
 	fiber.memoizedProps = fiber.pendingProps; // 更新完成之后，更新当前属性
 
-	if (next !== null) {
+	if (next === null) {
 		// 没有子节点就返回向上遍历兄弟节点或者父节点
 		completeUnitOfWork(fiber);
 	} else {
@@ -67,7 +68,7 @@ function performUnitOfWork(fiber: FiberNode) {
 	}
 }
 
-//
+// 遍历兄弟节点
 function completeUnitOfWork(fiber: FiberNode) {
 	let node: FiberNode | null = fiber;
 	do {
