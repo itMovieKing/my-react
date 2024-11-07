@@ -18,6 +18,7 @@ export const beginWork = (wip: FiberNode) => {
 				console.warn('beginwork 暂未实现的组件类型');
 			}
 	}
+	return null;
 };
 
 // 1. 处理更新状态，2.返回子fibernode
@@ -31,7 +32,7 @@ function updateHostRoot(wip: FiberNode) {
 
 	// 对于hostroot来说这里wip.memoizedState就是render传进来的<App />
 	const nextChildren = wip.memoizedState;
-	// 生成子节点的方法
+	// 生成子FiberNode的方法
 	reconcileChildren(wip, nextChildren);
 	return wip.child;
 }
@@ -46,6 +47,7 @@ function updateHostComponent(wip: FiberNode) {
 }
 
 // 通过比较子节点的current 和子节点的 reactelement生成 子fibernode
+// wip.alternate就是current
 // mounted的时候，只给hostRootFiber加过wip
 function reconcileChildren(wip: FiberNode, children?: ReactElementType) {
 	const current = wip.alternate; // 父节点的current

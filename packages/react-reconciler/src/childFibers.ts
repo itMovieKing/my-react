@@ -33,6 +33,7 @@ function childReconciler(shouldTrackEffct: boolean) {
 	}
 
 	function placeSingleChild(fiber: FiberNode) {
+		// 首屏渲染且追踪副作用的时候才加flags
 		if (shouldTrackEffct && fiber.alternate === null) {
 			fiber.flags |= Placement;
 		}

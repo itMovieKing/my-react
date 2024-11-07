@@ -1,3 +1,5 @@
+import { beginWork } from './beginWork';
+import { completeWork } from './completeWork';
 import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
 import { HostRoot } from './workTags';
 
@@ -47,6 +49,7 @@ function renderRoot(root: FiberRootNode) {
 }
 
 // 深度优先遍历，向下递归子节点，当前更新的fiber不为空就一直执行
+// HostFiberRoot，没有wip，所以这里相当于是遍历到根节点
 function workLoop() {
 	while (workInProgress !== null) {
 		performUnitOfWork(workInProgress);
@@ -60,7 +63,7 @@ function performUnitOfWork(fiber: FiberNode) {
 	fiber.memoizedProps = fiber.pendingProps; // 更新完成之后，更新当前属性
 
 	if (next === null) {
-		// 没有子节点就返回向上遍历兄弟节点或者父节点
+		// 没有子节点就返回向上遍历兄弟节点或者父节点，叶子节点，开始归
 		completeUnitOfWork(fiber);
 	} else {
 		// 否则就继续向下遍历子节点
