@@ -1,6 +1,8 @@
 import { beginWork } from './beginWork';
+import { commitMutationEffcts } from './commitWork';
 import { completeWork } from './completeWork';
 import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
+import { MutationMask, NoFlags } from './fiberFlags';
 import { HostRoot } from './workTags';
 
 // 正在更新的fiber
@@ -46,6 +48,42 @@ function renderRoot(root: FiberRootNode) {
 			workInProgress = null;
 		}
 	} while (true);
+
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+
+	// wip fibernode树
+	commitRoot(root);
+}
+
+function commitRoot(root: FiberRootNode) {
+	const finishedWork = root.finishedWork;
+	if (finishedWork === null) {
+		return;
+	}
+
+	if (__DEV__) {
+		console.info('commit阶段开始', root);
+	}
+
+	root.finishedWork = null;
+
+	// 判断 是否存在三个阶段需要执行的操作
+	const subtreeHasEffct =
+		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
+	const rootHasEffct = (finishedWork.flags & MutationMask) !== NoFlags;
+
+	if (subtreeHasEffct || rootHasEffct) {
+		// beforeMutation
+		// mutabtion
+		commitMutationEffcts(finishedWork);
+		// 更新完成之后 将wip复制给current
+		root.current = finishedWork;
+		// layout
+	} else {
+		// 更新完成之后 将wip复制给current
+		root.current = finishedWork;
+	}
 }
 
 // 深度优先遍历，向下递归子节点，当前更新的fiber不为空就一直执行
