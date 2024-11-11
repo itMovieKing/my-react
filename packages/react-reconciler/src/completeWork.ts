@@ -1,5 +1,6 @@
 import {
 	appendInitialChild,
+	Container,
 	createInstance,
 	createTextInstance
 } from 'hostConfig';
@@ -33,8 +34,9 @@ export const completeWork = (wip: FiberNode) => {
 			if (current !== null && wip.stateNode) {
 				// update
 			} else {
-				const instance = createTextInstance(wip.type, newProps);
-				appendAllChildren(instance, wip);
+				const instance = createTextInstance(wip.type);
+				// TODO: TS  error
+				appendAllChildren(instance as unknown as Element, wip);
 				wip.stateNode = instance;
 			}
 			// 收集更新 flags
@@ -50,7 +52,7 @@ export const completeWork = (wip: FiberNode) => {
 	}
 };
 
-function appendAllChildren(parent: FiberNode, wip: FiberNode) {
+function appendAllChildren(parent: Container, wip: FiberNode) {
 	let node = wip.child;
 
 	while (node !== null) {

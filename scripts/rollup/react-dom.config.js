@@ -45,24 +45,5 @@ export default [
 				})
 			})
 		]
-	},
-	// jsx-runtime,这里需要打包出来两个产物,所以output是一个数组
-	{
-		input: `${pkgPath}/src/jsx.ts`,
-		output: [
-			// jsx-runtime
-			{
-				file: `${pkgDistPath}/jsx-runtime.js`,
-				name: 'jsx-runtime',
-				format: 'umd'
-			},
-			// jsx-dev-runtime
-			{
-				file: `${pkgDistPath}/jsx-dev-runtime.js`,
-				name: 'jsx-dev-runtime',
-				format: 'umd'
-			}
-		],
-		plugins: getBaseRollupPlugins()
 	}
 ];
