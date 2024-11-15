@@ -34,9 +34,7 @@ export const completeWork = (wip: FiberNode) => {
 			if (current !== null && wip.stateNode) {
 				// update
 			} else {
-				const instance = createTextInstance(wip.type);
-				// TODO: TS  error
-				appendAllChildren(instance as unknown as Element, wip);
+				const instance = createTextInstance(newProps.content);
 				wip.stateNode = instance;
 			}
 			// 收集更新 flags
